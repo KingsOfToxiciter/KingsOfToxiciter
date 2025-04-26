@@ -1,23 +1,25 @@
-# Use official Node.js image
+# Node.js base image
 FROM node:20
 
-# Install yt-dlp
-RUN apt-get update && apt-get install -y \
-    python3-pip \
-    ffmpeg \
-    && pip3 install yt-dlp
+# Install ffmpeg and yt-dlp
+RUN apt-get update && apt-get install -y ffmpeg wget \
+    && wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
+    && install -m 755 yt-dlp /usr/local/bin/yt-dlp \
+    && rm yt-dlp
 
-# Create app directory
+# Set working directory
 WORKDIR /app
 
-# Install app dependencies
+# Copy package.json and package-lock.json first
 COPY package*.json ./
+
+# Install Node.js dependencies
 RUN npm install
 
-# Bundle app source
+# Copy all source code
 COPY . .
 
-# Expose port
+# Expose port (Railway uses PORT environment variable)
 EXPOSE 3000
 
 # Start the server
