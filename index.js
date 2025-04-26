@@ -1,58 +1,39 @@
 const express = require("express");
-const { execFile } = require("child_process");
+const { spawn } = require("child_process");
 const cors = require("cors");
-const rateLimit = require("express-rate-limit");
-const fetch = require("node-fetch");
 
 const app = express();
 app.use(cors());
 
-// Rate limiting (প্রতি IP প্রতি মিনিটে সর্বোচ্চ ২০ অনুরোধ)
-const limiter = rateLimit({
-    windowMs: 1 * 60 * 1000, // 1 মিনিট
-    max: 20,
-    message: { error: "Too many requests. Please try again later." }
-});
-app.use(limiter);
-
-// URL Validation ফাংশন
-const isValidURL = (url) => {
-    try {
-        new URL(url);
-        return true;
-    } catch (err) {
-        return false;
-    }
-};
-
-app.get("/download", async (req, res) => {
+app.get("/alldl", (req, res) => {
     const videoUrl = req.query.url;
     const format = req.query.format || "b";
-
-    if (!videoUrl || !isValidURL(videoUrl)) {
-        return res.status(400).json({ error: "Invalid or missing URL" });
+    if (!videoUrl) {
+        return res.status(400).json({ error: "URL is required" });
     }
+      let content = "video/mp4";
+          if(format === "bestaudio" || format === "worstaudio" || format === "233" || format === "234" || format === "249" || format === "250") {
+            content = "audio/mp3";
+}
+    const ytDlp = spawn("yt-dlp", ["-f", format, "-o", "-", videoUrl]);
 
-    execFile("yt-dlp", ["-f", format, "--get-url", videoUrl], async (error, stdout, stderr) => {
-        if (error) {
-            return res.status(500).json({ error: "Failed to fetch video", details: error.message });
-        }
 
-        const videoLink = stdout.trim();
-        if (!videoLink) {
-            return res.status(500).json({ error: "Could not extract video link" });
-        }
+    res.setHeader("Content-Type", content);
 
-        try {
-            const response = await fetch(videoLink);
-            if (!response.ok) {
-                throw new Error("Failed to fetch video from source");
-            }
+    ytDlp.stdout.pipe(res);
 
-            res.setHeader("Content-Disposition", 'attachment; filename="video.mp4"');
-            response.body.pipe(res);
-        } catch (err) {
-            res.status(500).json({ error: "Download error", details: err.message });
+    ytDlp.stderr.on("data", (data) => {
+        console.error(`stderr: ${data}`);
+    });
+
+    ytDlp.on("error", (err) => {
+        console.error("Failed to start yt-dlp:", err);
+        res.status(500).json({ error: "yt-dlp execution failed" });
+    });
+8
+    ytDlp.on("close", (code) => {
+        if (code !== 0) {
+            console.error(`yt-dlp exited with code ${code}`);
         }
     });
 });
