@@ -8,9 +8,7 @@
   },
   "dependencies": {
   "express": "^4.18.2",
-  "cors": "^2.8.5",
-  "express-rate-limit": "^6.7.0",
-  "node-fetch": "^2.6.7"
+  "cors": "^2.8.5"
 },
   "author": "♡︎ 𝐻𝐴𝑆𝐴𝑁 ♡︎",
   "license": "ISC"
