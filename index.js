@@ -18,7 +18,7 @@ app.get("/alldl", (req, res) => {
         content = "audio/mp3";
     }
 
-    const ytDlp = spawn("yt-dlp", ["--cookies-from-browser", "chrome", "-f", format, "-o", "-", videoUrl]);
+    const ytDlp = spawn("yt-dlp", ["-f", format, "-o", "-", videoUrl]);
 
     res.setHeader("Content-Type", content);
 
