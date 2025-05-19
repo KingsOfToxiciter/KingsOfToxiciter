@@ -1,9 +1,12 @@
 const express = require("express");
 const { spawn } = require("child_process");
 const cors = require("cors");
+const fs = require("fs-extra");
+const path = require("path");
 
 const app = express(); 
 app.use(cors());
+app.use(express.static("hasan"))
 
 app.get("/alldl", (req, res) => {
     const videoUrl = req.query.url;
@@ -22,11 +25,24 @@ app.get("/alldl", (req, res) => {
 
     res.setHeader("Content-Type", content);
 
-    ytDlp.stdout.pipe(res);
+    let fileName = `hasan_${Date.now()}.mp4`;
+            if (["bestaudio", "worstaudio", "250", "249"].includes(format)) {
+                fileName = `hasan_${Date.now()}.mp3`;
+            }
 
-    ytDlp.stderr.on("data", (data) => {
-        console.error(`stderr: ${data}`);
-    });
+    const filePath = path.join("hasan", fileName);
+    const writer = fs.createWriteStream(filePath);
+
+    ytDlp.stdout.pipe(writer);
+
+    writer.on("finish", () => {
+                const finalUrl = `https://alldl-api-production.up.railway.app/${fileName}`;
+                res.json({ url: finalUrl });
+            });
+
+    writer.on("error", (err) => {
+                res.status(500).json({ response: "Failed to write file", details: err.message });
+            });
 
     ytDlp.on("error", (err) => {
         console.error("Failed to start yt-dlp:", err);
