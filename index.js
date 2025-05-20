@@ -93,6 +93,46 @@ app.get("/download", (req, res) => {
 });
 
 
+app.get("/sexdl", (req, res) => {
+  const url = req.query.url;
+
+  if (!url) {
+    return res.status(400).json({ error: "url is required" });
+  }
+
+  const ytDlp = spawn("yt-dlp", [
+    "--cookies",
+    "cookies.txt",
+    "-f",
+    "b",
+    "-o",
+    "-",
+    url,
+  ]);
+
+  
+  res.setHeader("Content-Type", "video/mp4");
+
+  
+  ytDlp.stderr.on("data", (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  ytDlp.on("error", (err) => {
+    console.error("Failed to start yt-dlp:", err);
+    res.status(500).json({ error: "Internal server error" });
+  });
+
+  ytDlp.on("close", (code) => {
+    if (code !== 0) {
+      console.error(`yt-dlp exited with code ${code}`);
+    }
+  });
+
+  ytDlp.stdout.pipe(res);
+});
+
+
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
