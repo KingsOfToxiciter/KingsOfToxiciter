@@ -6,9 +6,13 @@ const path = require("path");
 
 const app = express();
 app.use(cors());
-app.use(express.static("hasan")); // Static file access (downloaded files)
+app.use(express.static("hasan")); 
 
-app.get("/alldl", (req, res) => {
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "hasan", "index.html"));
+});
+
+app.get("/download", (req, res) => {
     const videoUrl = req.query.url;
     const format = req.query.format || "b";
 
@@ -28,7 +32,7 @@ app.get("/alldl", (req, res) => {
 
     const filePath = path.join("hasan", fileName);
 
-    // yt-dlp command
+    
     const ytDlp = spawn("yt-dlp", [
         "--cookies",
         "cookies.txt",
@@ -42,17 +46,17 @@ app.get("/alldl", (req, res) => {
     const writer = fs.createWriteStream(filePath);
     let responseSent = false;
 
-    // Pipe stdout to file
+    
     ytDlp.stdout.pipe(writer);
 
-    // Optional: log progress info from yt-dlp
+    
     ytDlp.stderr.on("data", (data) => {
         console.log(`yt-dlp: ${data}`);
     });
 
     writer.on("finish", () => {
         if (!responseSent) {
-            const finalUrl = `https://alldl-api-production.up.railway.app/${fileName}`;
+            const finalUrl = `https://kingsoftoxiciter-production.up.railway.app/${fileName}`;
             res.json({ url: finalUrl });
             responseSent = true;
         }
@@ -88,7 +92,7 @@ app.get("/alldl", (req, res) => {
     });
 });
 
-// Run server
+
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
