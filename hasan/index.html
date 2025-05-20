@@ -67,9 +67,15 @@
         const res = await fetch(`https://kingsoftoxiciter-production.up.railway.app/download?url=${encodeURIComponent(url)}&format=${format}`);
         const data = await res.json();
         
-        if (data.url) {
-          result.innerHTML = `Download ready: <br><a href="${data.url}" target="_blank">${data.url}</a>`;
-        } else {
+ if (data.url) {
+  result.innerHTML = `
+    <strong>Download ready:</strong><br>
+    <a href="${data.url}" target="_blank">${data.url}</a><br><br>
+    <a href="${data.url}" download>
+      <button>Click Here to Download</button>
+    </a>
+  `;
+} else {
           result.innerHTML = `Error: ${data.response || "Unknown error"}`;
         }
       } catch (err) {
