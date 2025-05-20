@@ -56,7 +56,7 @@ app.get("/download", (req, res) => {
 
     writer.on("finish", () => {
         if (!responseSent) {
-            const finalUrl = `https://kingsoftoxiciter-production.up.railway.app/${fileName}`;
+            const finalUrl = `https://download.noobx-api.rf.gd/${fileName}`;
             res.json({ url: finalUrl });
             responseSent = true;
         }
