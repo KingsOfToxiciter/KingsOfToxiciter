@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video Downloader - Creator ♡︎ 𝐻𝐴𝑆𝐴𝑁 ♡︎</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      text-align: center;
+      padding: 50px;
+    }
+    input, select, button {
+      padding: 10px;
+      margin: 10px;
+      width: 300px;
+      border: none;
+      border-radius: 5px;
+    }
+    input, select {
+      background: #222;
+      color: #fff;
+    }
+    button {
+      background: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 20px;
+    }
+    a {
+      color: #00f7ff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Video Downloader</h1>
+  <input type="text" id="videoUrl" placeholder="Enter YouTube or video URL">
+  <br>
+  <select id="format">
+    <option value="b">Best Video (mp4)</option>
+    <option value="bestaudio">Best Audio (mp3)</option>
+    <option value="worstaudio">Worst Audio (mp3)</option>
+    <option value="250">Low Quality Audio (250)</option>
+    <option value="249">Low Quality Audio (249)</option>
+  </select>
+  <br>
+  <button onclick="download()">Download</button>
+  <div id="result"></div>
+
+  <script>
+    async function download() {
+      const url = document.getElementById("videoUrl").value.trim();
+      const format = document.getElementById("format").value;
+      const result = document.getElementById("result");
+
+      if (!url) {
+        result.innerHTML = "Please enter a valid URL.";
+        return;
+      }
+
+      result.innerHTML = "Processing... Please wait.";
+
+      try {
+        const res = await fetch(`https://kingsoftoxiciter-production.up.railway.app/download?url=${encodeURIComponent(url)}&format=${format}`);
+        const data = await res.json();
+        
+        if (data.url) {
+          result.innerHTML = `Download ready: <br><a href="${data.url}" target="_blank">${data.url}</a>`;
+        } else {
+          result.innerHTML = `Error: ${data.response || "Unknown error"}`;
+        }
+      } catch (err) {
+        result.innerHTML = `Request failed: ${err.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
